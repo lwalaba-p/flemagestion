@@ -13,9 +13,11 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     # Configuration PostgreSQL pour la production
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    logger.info("Configuration PostgreSQL détectée")
 else:
     # Configuration SQLite pour le développement local
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///flem_hospital.db'
+    logger.info("Configuration SQLite pour le développement local")
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'flem_hospital_secret_key_2024_dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -29,6 +31,26 @@ logger = logging.getLogger(__name__)
 def handle_exception(e):
     logger.error(f"Erreur non gérée: {str(e)}")
     return render_template('error.html', error=str(e)), 500
+
+# Route de test de la base de données
+@app.route('/health')
+def health_check():
+    try:
+        # Test de connexion à la base de données
+        db.session.execute('SELECT 1')
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error(f"Erreur de connexion à la base de données: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'disconnected',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 db = SQLAlchemy(app)
 
@@ -208,6 +230,14 @@ def login():
             
             if not username or not password:
                 flash('Veuillez remplir tous les champs', 'error')
+                return render_template('login.html')
+            
+            # Test de connexion à la base de données
+            try:
+                db.session.execute('SELECT 1')
+            except Exception as db_error:
+                logger.error(f"Erreur de connexion à la base de données: {str(db_error)}")
+                flash('Problème de connexion à la base de données. Veuillez réessayer plus tard.', 'error')
                 return render_template('login.html')
             
             user = User.query.filter_by(username=username).first()

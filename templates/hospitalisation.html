@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Hospitalisation - Centre FLEM{% endblock %}
+{% block page_title %}Gestion des Hospitalisations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Patients Hospitalisés</h2>
+    <a href="{{ url_for('admettre_patient') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Admettre un Patient
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ hospitalisations|length }}</h5>
+                <p class="card-text">Patients Hospitalisés</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ chambres_occupees }}</h5>
+                <p class="card-text">Chambres Occupées</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ chambres_libres }}</h5>
+                <p class="card-text">Chambres Libres</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ total_chambres }}</h5>
+                <p class="card-text">Total Chambres</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Chambre</th>
+                        <th>Date Admission</th>
+                        <th>Motif</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hosp in hospitalisations %}
+                    <tr>
+                        <td>{{ hosp.id }}</td>
+                        <td>
+                            <strong>{{ hosp.patient.nom }} {{ hosp.patient.prenom }}</strong><br>
+                            <small class="text-muted">{{ hosp.patient.telephone }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ hosp.chambre.numero }}</span><br>
+                            <small class="text-muted">{{ hosp.chambre.type_chambre.title() }}</small>
+                        </td>
+                        <td>{{ hosp.date_admission.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ hosp.motif_admission[:50] }}{% if hosp.motif_admission|length > 50 %}...{% endif %}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if hosp.statut == 'hospitalise' else 'warning' if hosp.statut == 'transfere' else 'secondary' }}">
+                                {{ hosp.statut.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <form method="POST" action="{{ url_for('sortie_patient', id=hosp.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Confirmer la sortie du patient?')">
+                                    <i class="fas fa-sign-out-alt"></i> Sortie
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Aucun patient hospitalisé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Nouvelle Facture - Centre FLEM{% endblock %}
+{% block page_title %}Créer une Facture{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations de la Facture</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="factureForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="patient_id" class="form-label">Patient *</label>
+                            <select class="form-control" id="patient_id" name="patient_id" required>
+                                <option value="">Sélectionner un patient</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.nom }} {{ patient.prenom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="type_facture" class="form-label">Type de Facture *</label>
+                            <select class="form-control" id="type_facture" name="type_facture" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="hospitalisation">Hospitalisation</option>
+                                <option value="consultation">Consultation</option>
+                                <option value="medicaments">Médicaments</option>
+                                <option value="examens">Examens</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="hospitalisation_id" class="form-label">Hospitalisation (optionnel)</label>
+                            <select class="form-control" id="hospitalisation_id" name="hospitalisation_id">
+                                <option value="">Aucune hospitalisation</option>
+                                {% for hosp in hospitalisations %}
+                                <option value="{{ hosp.id }}">
+                                    {{ hosp.patient.nom }} - Chambre {{ hosp.chambre.numero }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="date_echeance" class="form-label">Date d'Échéance</label>
+                            <input type="date" class="form-control" id="date_echeance" name="date_echeance">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                    </div>
+                    
+                    <hr>
+                    <h6>Services et Prestations</h6>
+                    
+                    <div id="services-container">
+                        <div class="row service-row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Type de Service</label>
+                                <select class="form-control service-type" name="services[]">
+                                    <option value="">Sélectionner</option>
+                                    <option value="chambre">Chambre</option>
+                                    <option value="consultation">Consultation</option>
+                                    <option value="medicament">Médicament</option>
+                                    <option value="examen">Examen</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Description</label>
+                                <input type="text" class="form-control" name="descriptions[]" placeholder="Description du service">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Quantité</label>
+                                <input type="number" class="form-control" name="quantites[]" min="1" value="1">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Prix Unitaire (CDF)</label>
+                                <input type="number" class="form-control" name="prix[]" min="0" step="100">
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-danger btn-sm w-100 remove-service">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-success mb-3" id="add-service">
+                        <i class="fas fa-plus"></i> Ajouter un Service
+                    </button>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('facturation') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Créer la Facture
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Tarifs de Référence</h6>
+            </div>
+            <div class="card-body">
+                <h6>Chambres :</h6>
+                {% for chambre in chambres %}
+                <p class="mb-1">
+                    <small>{{ chambre.numero }} ({{ chambre.type_chambre.title() }}) : {{ "{:,.0f}".format(chambre.prix_nuit) }} CDF/nuit</small>
+                </p>
+                {% endfor %}
+                
+                <hr>
+                <h6>Médicaments :</h6>
+                {% for medicament in medicaments %}
+                <p class="mb-1">
+                    <small>{{ medicament.nom }} : {{ "{:,.0f}".format(medicament.prix_unitaire) }} CDF</small>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addServiceBtn = document.getElementById('add-service');
+    const servicesContainer = document.getElementById('services-container');
+    
+    addServiceBtn.addEventListener('click', function() {
+        const newRow = document.querySelector('.service-row').cloneNode(true);
+        newRow.querySelectorAll('input, select').forEach(input => {
+            input.value = '';
+        });
+        servicesContainer.appendChild(newRow);
+    });
+    
+    servicesContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-service') || e.target.parentElement.classList.contains('remove-service')) {
+            if (servicesContainer.children.length > 1) {
+                e.target.closest('.service-row').remove();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

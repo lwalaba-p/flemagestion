@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Pharmacie - Centre FLEM{% endblock %}
+{% block page_title %}Pharmacie{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Stock des Médicaments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Médicament</th>
+                                <th>Code</th>
+                                <th>Stock</th>
+                                <th>Prix Unitaire</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicament in medicaments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ medicament.nom }}</strong><br>
+                                    <small class="text-muted">{{ medicament.description }}</small>
+                                </td>
+                                <td>{{ medicament.code_medicament }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if medicament.quantite_stock <= medicament.seuil_minimum else 'success' }}">
+                                        {{ medicament.quantite_stock }}
+                                    </span>
+                                </td>
+                                <td>{{ "{:,.0f}".format(medicament.prix_unitaire) }} CDF</td>
+                                <td>
+                                    {% if medicament.quantite_stock <= medicament.seuil_minimum %}
+                                        <span class="badge bg-danger">Stock faible</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Disponible</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center">Aucun médicament trouvé</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Prescriptions Récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if prescriptions %}
+                    {% for prescription in prescriptions %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                        <div>
+                            <strong>{{ prescription.patient.nom }} {{ prescription.patient.prenom }}</strong><br>
+                            <small class="text-muted">{{ prescription.medicament.nom }}</small>
+                        </div>
+                        <span class="badge bg-{{ 'warning' if prescription.statut == 'en_attente' else 'success' if prescription.statut == 'delivre' else 'danger' }}">
+                            {{ prescription.statut.title() }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">Aucune prescription récente</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Actions Rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('medicaments') }}" class="btn btn-primary">
+                        <i class="fas fa-pills"></i> Gérer les Médicaments
+                    </a>
+                    <a href="{{ url_for('prescriptions') }}" class="btn btn-warning">
+                        <i class="fas fa-prescription-bottle-alt"></i> Voir les Prescriptions
+                    </a>
+                    <a href="{{ url_for('ajouter_medicament') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Ajouter un Médicament
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

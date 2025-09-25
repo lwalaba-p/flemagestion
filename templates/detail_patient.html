@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.nom }} {{ patient.prenom }} - Centre FLEM{% endblock %}
+{% block page_title %}Détails du Patient{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations Personnelles</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nom:</strong> {{ patient.nom }}</p>
+                <p><strong>Prénom:</strong> {{ patient.prenom }}</p>
+                <p><strong>Date de Naissance:</strong> {{ patient.date_naissance.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Téléphone:</strong> {{ patient.telephone }}</p>
+                <p><strong>Email:</strong> {{ patient.email or 'Non renseigné' }}</p>
+                <p><strong>Adresse:</strong> {{ patient.adresse or 'Non renseignée' }}</p>
+                <p><strong>N° Sécurité Sociale:</strong> {{ patient.numero_securite_sociale }}</p>
+                <p><strong>Date d'inscription:</strong> {{ patient.date_inscription.strftime('%d/%m/%Y à %H:%M') }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Rendez-vous</h5>
+            </div>
+            <div class="card-body">
+                {% if rendez_vous %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rdv in rendez_vous %}
+                            <tr>
+                                <td>{{ rdv.date_rdv.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ rdv.personnel.nom }} {{ rdv.personnel.prenom }}</td>
+                                <td>{{ rdv.type_consultation }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if rdv.statut == 'confirme' else 'warning' if rdv.statut == 'programme' else 'danger' }}">
+                                        {{ rdv.statut.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Aucun rendez-vous trouvé</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Consultations</h5>
+            </div>
+            <div class="card-body">
+                {% if consultations %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Médecin</th>
+                                <th>Diagnostic</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for consultation in consultations %}
+                            <tr>
+                                <td>{{ consultation.date_consultation.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ consultation.personnel.nom }} {{ consultation.personnel.prenom }}</td>
+                                <td>{{ consultation.diagnostic or 'Non renseigné' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Aucune consultation trouvée</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('patients') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+    <a href="{{ url_for('ajouter_rendez_vous') }}" class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> Nouveau Rendez-vous
+    </a>
+</div>
+{% endblock %}

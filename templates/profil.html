@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Profil - Centre FLEM{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations Personnelles</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nom d'utilisateur:</strong> {{ user.username }}</p>
+                        <p><strong>Nom:</strong> {{ user.nom }}</p>
+                        <p><strong>Prénom:</strong> {{ user.prenom }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Téléphone:</strong> {{ user.telephone or 'Non renseigné' }}</p>
+                        <p><strong>Rôle:</strong> 
+                            <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'primary' if user.role == 'medecin' else 'warning' if user.role == 'pharmacien' else 'info' }}">
+                                {{ user.role.title() }}
+                            </span>
+                        </p>
+                        <p><strong>Statut:</strong> 
+                            <span class="badge bg-{{ 'success' if user.statut == 'actif' else 'secondary' }}">
+                                {{ user.statut.title() }}
+                            </span>
+                        </p>
+                        <p><strong>Membre depuis:</strong> {{ user.date_creation.strftime('%d/%m/%Y') }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('modifier_profil') }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Modifier mon profil
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Actions Rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('modifier_profil') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-edit"></i> Modifier mes informations
+                    </a>
+                    <a href="{{ url_for('modifier_profil') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-key"></i> Changer mon mot de passe
+                    </a>
+                    {% if user.role == 'medecin' %}
+                    <a href="{{ url_for('rendez_vous') }}" class="btn btn-outline-info">
+                        <i class="fas fa-calendar-check"></i> Mes rendez-vous
+                    </a>
+                    {% elif user.role == 'pharmacien' %}
+                    <a href="{{ url_for('pharmacie') }}" class="btn btn-outline-info">
+                        <i class="fas fa-pills"></i> Pharmacie
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Statistiques</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Dernière connexion:</strong> Aujourd'hui</p>
+                <p><strong>Nombre de connexions:</strong> {{ user.date_creation.strftime('%d') }}</p>
+                <p><strong>Statut du compte:</strong> Actif</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

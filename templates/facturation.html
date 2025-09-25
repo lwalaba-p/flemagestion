@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Facturation - Centre FLEM{% endblock %}
+{% block page_title %}Gestion de la Facturation{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Facturation</h2>
+    <a href="{{ url_for('nouvelle_facture') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nouvelle Facture
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ stats.total_factures }}</h5>
+                <p class="card-text">Total Factures</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ stats.factures_impayees }}</h5>
+                <p class="card-text">Factures Impayées</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ "{:,.0f}".format(stats.montant_impaye) }} CDF</h5>
+                <p class="card-text">Montant Impayé</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>N° Facture</th>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Montant Total</th>
+                        <th>Montant Payé</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for facture in factures %}
+                    <tr>
+                        <td><strong>{{ facture.numero_facture }}</strong></td>
+                        <td>{{ facture.patient.nom }} {{ facture.patient.prenom }}</td>
+                        <td>{{ facture.date_facture.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if facture.type_facture == 'hospitalisation' else 'info' if facture.type_facture == 'consultation' else 'warning' }}">
+                                {{ facture.type_facture.title() }}
+                            </span>
+                        </td>
+                        <td>{{ "{:,.0f}".format(facture.montant_total) }} CDF</td>
+                        <td>{{ "{:,.0f}".format(facture.montant_paye) }} CDF</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if facture.statut == 'payee' else 'warning' if facture.statut == 'partielle' else 'danger' }}">
+                                {{ facture.statut.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('detail_facture', id=facture.id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">Aucune facture trouvée</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

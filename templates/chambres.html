@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Chambres - Centre FLEM{% endblock %}
+{% block page_title %}Gestion des Chambres{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Liste des Chambres</h2>
+    <a href="{{ url_for('ajouter_chambre') }}" class="btn btn-primary">
+        <i class="fas fa-bed"></i> Nouvelle Chambre
+    </a>
+</div>
+
+<div class="row">
+    {% for chambre in chambres %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title">Chambre {{ chambre.numero }}</h5>
+                    <span class="badge bg-{{ 'success' if chambre.statut == 'libre' else 'danger' if chambre.statut == 'occupee' else 'warning' }}">
+                        {{ chambre.statut.title() }}
+                    </span>
+                </div>
+                <p class="card-text">
+                    <strong>Type:</strong> {{ chambre.type_chambre.title() }}<br>
+                    <strong>Prix/nuit:</strong> {{ "{:,.0f}".format(chambre.prix_nuit) }} CDF<br>
+                    <small class="text-muted">≈ ${{ "{:.2f}".format(chambre.prix_nuit / 2500) }} USD</small>
+                </p>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i> Détails
+                    </button>
+                    <button class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle"></i> Aucune chambre trouvée
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Vue en tableau pour les détails -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Vue détaillée</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Prix/Nuit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chambre in chambres %}
+                    <tr>
+                        <td>{{ chambre.numero }}</td>
+                        <td>{{ chambre.type_chambre.title() }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if chambre.statut == 'libre' else 'danger' if chambre.statut == 'occupee' else 'warning' }}">
+                                {{ chambre.statut.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            {{ "{:,.0f}".format(chambre.prix_nuit) }} CDF<br>
+                            <small class="text-muted">≈ ${{ "{:.2f}".format(chambre.prix_nuit / 2500) }}</small>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('modifier_chambre', id=chambre.id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if session.role == 'admin' and chambre.statut != 'occupee' %}
+                            <form method="POST" action="{{ url_for('supprimer_chambre', id=chambre.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette chambre?')">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

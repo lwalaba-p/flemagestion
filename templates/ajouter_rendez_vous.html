@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Nouveau Rendez-vous - Centre FLEM{% endblock %}
+{% block page_title %}Ajouter un Rendez-vous{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Nouveau Rendez-vous</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="patient_id" class="form-label">Patient *</label>
+                            <select class="form-control" id="patient_id" name="patient_id" required>
+                                <option value="">Sélectionner un patient</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.nom }} {{ patient.prenom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="personnel_id" class="form-label">Médecin *</label>
+                            <select class="form-control" id="personnel_id" name="personnel_id" required>
+                                <option value="">Sélectionner un médecin</option>
+                                {% for person in personnel %}
+                                <option value="{{ person.id }}">{{ person.nom }} {{ person.prenom }} - {{ person.specialite }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date_rdv" class="form-label">Date et Heure *</label>
+                            <input type="datetime-local" class="form-control" id="date_rdv" name="date_rdv" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="type_consultation" class="form-label">Type de Consultation *</label>
+                            <select class="form-control" id="type_consultation" name="type_consultation" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="Consultation générale">Consultation générale</option>
+                                <option value="Consultation spécialisée">Consultation spécialisée</option>
+                                <option value="Contrôle">Contrôle</option>
+                                <option value="Urgence">Urgence</option>
+                                <option value="Vaccination">Vaccination</option>
+                                <option value="Bilan de santé">Bilan de santé</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Notes additionnelles..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('rendez_vous') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Rendez-vous - Centre FLEM{% endblock %}
+{% block page_title %}Gestion des Rendez-vous{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Liste des Rendez-vous</h2>
+    <a href="{{ url_for('ajouter_rendez_vous') }}" class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> Nouveau Rendez-vous
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Médecin</th>
+                        <th>Date & Heure</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rdv in rendez_vous %}
+                    <tr>
+                        <td>{{ rdv.id }}</td>
+                        <td>{{ rdv.patient.nom }} {{ rdv.patient.prenom }}</td>
+                        <td>{{ rdv.personnel.nom }} {{ rdv.personnel.prenom }}</td>
+                        <td>{{ rdv.date_rdv.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ rdv.type_consultation }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if rdv.statut == 'confirme' else 'warning' if rdv.statut == 'programme' else 'danger' }}">
+                                {{ rdv.statut.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('modifier_rendez_vous', id=rdv.id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('supprimer_rendez_vous', id=rdv.id) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rendez-vous?')">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Aucun rendez-vous trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function voirDetails(rdvId) {
+    // Fonction pour voir les détails d'un rendez-vous
+    alert('Détails du rendez-vous ' + rdvId);
+}
+</script>
+{% endblock %}

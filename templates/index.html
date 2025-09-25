@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord -  FLEM{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Patients</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ stats.total_patients }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-injured fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Personnel Médical</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ stats.total_personnel }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-md fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">RDV Aujourd'hui</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ stats.rdv_aujourd_hui }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Chambres Libres</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ stats.chambres_libres }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bed fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Actions Rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('ajouter_patient') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-user-plus"></i> Nouveau Patient
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('ajouter_rendez_vous') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-calendar-plus"></i> Nouveau Rendez-vous
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('ajouter_personnel') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-user-md"></i> Nouveau Personnel
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('ajouter_chambre') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-bed"></i> Nouvelle Chambre
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations Centre FLEM</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <i class="fas fa-hospital fa-3x text-primary mb-3"></i>
+                    <h4>Centre FLEM</h4>
+                    <p class="text-muted">Système de Gestion Hospitalière</p>
+                    <hr>
+                    <p><strong>Adresse:</strong> 123 Avenue de la Santé<br>75000 Paris</p>
+                    <p><strong>Téléphone:</strong> 01 23 45 67 89</p>
+                    <p><strong>Email:</strong> contact@flem.fr</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

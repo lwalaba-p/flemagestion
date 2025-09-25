@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Facture {{ facture.numero_facture }} - Centre FLEM{% endblock %}
+{% block page_title %}Détail de la Facture{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Facture {{ facture.numero_facture }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Informations Patient</h6>
+                        <p><strong>Nom:</strong> {{ facture.patient.nom }} {{ facture.patient.prenom }}</p>
+                        <p><strong>Téléphone:</strong> {{ facture.patient.telephone }}</p>
+                        <p><strong>Email:</strong> {{ facture.patient.email or 'Non renseigné' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Informations Facture</h6>
+                        <p><strong>Date:</strong> {{ facture.date_facture.strftime('%d/%m/%Y') }}</p>
+                        <p><strong>Type:</strong> {{ facture.type_facture.title() }}</p>
+                        <p><strong>Statut:</strong> 
+                            <span class="badge bg-{{ 'success' if facture.statut == 'payee' else 'warning' if facture.statut == 'partielle' else 'danger' }}">
+                                {{ facture.statut.title() }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6>Détail des Services</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Quantité</th>
+                                <th>Prix Unitaire</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in facture.details %}
+                            <tr>
+                                <td>{{ detail.description }}</td>
+                                <td>{{ detail.type_service.title() }}</td>
+                                <td>{{ detail.quantite }}</td>
+                                <td>{{ "{:,.0f}".format(detail.prix_unitaire) }} CDF</td>
+                                <td>{{ "{:,.0f}".format(detail.montant) }} CDF</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <th colspan="4">TOTAL</th>
+                                <th>{{ "{:,.0f}".format(facture.montant_total) }} CDF</th>
+                            </tr>
+                            <tr class="table-success">
+                                <th colspan="4">MONTANT PAYÉ</th>
+                                <th>{{ "{:,.0f}".format(facture.montant_paye) }} CDF</th>
+                            </tr>
+                            <tr class="table-warning">
+                                <th colspan="4">RESTE À PAYER</th>
+                                <th>{{ "{:,.0f}".format(facture.montant_total - facture.montant_paye) }} CDF</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                {% if facture.notes %}
+                <hr>
+                <h6>Notes</h6>
+                <p>{{ facture.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Actions</h6>
+            </div>
+            <div class="card-body">
+                {% if facture.statut != 'payee' %}
+                <form method="POST" action="{{ url_for('enregistrer_paiement', id=facture.id) }}">
+                    <div class="mb-3">
+                        <label for="montant_paye" class="form-label">Montant du Paiement (CDF)</label>
+                        <input type="number" class="form-control" id="montant_paye" name="montant_paye" 
+                               min="0" max="{{ facture.montant_total - facture.montant_paye }}" 
+                               step="100" required>
+                        <small class="form-text text-muted">
+                            Reste à payer: {{ "{:,.0f}".format(facture.montant_total - facture.montant_paye) }} CDF
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-money-bill-wave"></i> Enregistrer le Paiement
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Facture entièrement payée
+                </div>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <a href="{{ url_for('facturation') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Informations Centre FLEM</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Centre FLEM</strong><br>
+                123 Avenue de la Santé<br>
+                75000 Paris<br>
+                Tél: 01 23 45 67 89<br>
+                Email: contact@flem.fr</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

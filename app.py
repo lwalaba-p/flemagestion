@@ -4,6 +4,7 @@ from datetime import datetime, date
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+import logging
 
 app = Flask(__name__)
 
@@ -18,6 +19,16 @@ else:
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'flem_hospital_secret_key_2024_dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configuration du logging pour Render
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Gestionnaire d'erreurs global
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logger.error(f"Erreur non gérée: {str(e)}")
+    return render_template('error.html', error=str(e)), 500
 
 db = SQLAlchemy(app)
 
@@ -190,21 +201,33 @@ class DetailFacture(db.Model):
 # Routes d'authentification
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+    try:
+        if request.method == 'POST':
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '')
+            
+            if not username or not password:
+                flash('Veuillez remplir tous les champs', 'error')
+                return render_template('login.html')
+            
+            user = User.query.filter_by(username=username).first()
+            
+            if user and user.check_password(password) and user.statut == 'actif':
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['role'] = user.role
+                logger.info(f"Utilisateur {username} connecté avec succès")
+                flash(f'Bienvenue {user.prenom} {user.nom}!', 'success')
+                return redirect(url_for('index'))
+            else:
+                logger.warning(f"Tentative de connexion échouée pour {username}")
+                flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
         
-        if user and user.check_password(password) and user.statut == 'actif':
-            session['user_id'] = user.id
-            session['username'] = user.username
-            session['role'] = user.role
-            flash(f'Bienvenue {user.prenom} {user.nom}!', 'success')
-            return redirect(url_for('index'))
-        else:
-            flash('Nom d\'utilisateur ou mot de passe incorrect', 'error')
-    
-    return render_template('login.html')
+        return render_template('login.html')
+    except Exception as e:
+        logger.error(f"Erreur lors de la connexion: {str(e)}")
+        flash('Une erreur s\'est produite lors de la connexion', 'error')
+        return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -923,6 +946,7 @@ if __name__ == '__main__':
             db.session.commit()
     
     # Configuration pour le déploiement
-    port = int(os.environ.get('PORT', 8080))
-    debug_mode = os.environ.get('FLASK_ENV') != 'production'
-    app.run(debug=debug_mode, host='0.0.0.0', port=port)
+    if __name__ == '__main__':
+        port = int(os.environ.get('PORT', 8080))
+        debug_mode = os.environ.get('FLASK_ENV') != 'production'
+        app.run(debug=debug_mode, host='0.0.0.0', port=port)

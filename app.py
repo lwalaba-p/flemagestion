@@ -5,6 +5,7 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import logging
+from sqlalchemy import text
 
 app = Flask(__name__)
 
@@ -32,12 +33,22 @@ def handle_exception(e):
     logger.error(f"Erreur non gérée: {str(e)}")
     return render_template('error.html', error=str(e)), 500
 
+# Route pour favicon.ico
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
+# Route de redirection pour les URLs non trouvées
+@app.route('/<path:path>')
+def catch_all(path):
+    return redirect(url_for('login'))
+
 # Route de test de la base de données
 @app.route('/health')
 def health_check():
     try:
         # Test de connexion à la base de données
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
         return jsonify({
             'status': 'healthy',
             'database': 'connected',
@@ -234,7 +245,7 @@ def login():
             
             # Test de connexion à la base de données
             try:
-                db.session.execute('SELECT 1')
+                db.session.execute(text('SELECT 1'))
             except Exception as db_error:
                 logger.error(f"Erreur de connexion à la base de données: {str(db_error)}")
                 flash('Problème de connexion à la base de données. Veuillez réessayer plus tard.', 'error')

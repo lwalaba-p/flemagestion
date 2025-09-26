@@ -8,6 +8,10 @@ import logging
 
 app = Flask(__name__)
 
+# Configuration du logging pour Render
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Configuration pour la production
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
@@ -21,10 +25,6 @@ else:
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'flem_hospital_secret_key_2024_dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Configuration du logging pour Render
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Gestionnaire d'erreurs global
 @app.errorhandler(Exception)
